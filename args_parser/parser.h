@@ -1,27 +1,36 @@
 namespace args {
-    struct list {
-        bool cpph = false;
-        bool is_stdRegex = true;
-        std::string namespace_name;
-        std::string regex
-    };
-    list parse(int argc, const char** argv) {
+    map<string, string> parse(int argc, const char** argv) {
         char c;
-        std::cstring<20> flag = "p";
+        map<string, string> result {};
+
+        string flagname = "path";
         for (unsigned pos = 0; pos < argc - 1; pos++) {
-            std::string param;
-            for (unsigned i = 0; (c = argv[pos][i]) != '\0'; i++) {
+            string param;
+            bool is_flag = false;
+            int i = 0;
+            for (; (c = argv[pos][i]) != '\0'; i++) {
                 if (c == '-') {
+                    if (i != 0)
+                        ferr("Parameter cannot")
                     // flag
-                    if (!param.empty())
-
-                    flag = c;
+                    is_flag = true;
+                    flagname.clear();
+                    param.clear();
                 } else {
-                    // argument
-                    param += c;
+                    if (is_flag)
+                        if (!isalpha(c))
+                            ferr("Flag must contain only alpha characters", argv, argc, i);
+                    else
+                        if (!isalnum(c))
+                            ferr("Parameter must contain only alphanumeric characters", argv, argc, i);
                 }
+                // argument
+                if (is_flag) flagname += c;
+                else         param += c;
             }
-
+            if (flagname == "") {
+                ferr("Empty flag", argv, argc, i);
+            }
         }
     }
 }
