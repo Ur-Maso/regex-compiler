@@ -1,28 +1,24 @@
 cmake_minimum_required(VERSION 3.5)
 
-include ("debug_prop")
-# function to add something to variable
-function(add, varaible, value)
-    set(${variable}, "${{variable}}${value}")
-endfunction(add, varaible, value)
-# function to add cxx flags
-function(cxx_flag)
-    foreach(flag IN LISTS ARGN)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -${flag}")
-    endforeach()
-endfunction()
-# function to add compiler argument
-function(cxx_arg, arg)
-    set(CMAKE_CXX_FLAGS, "${CMAKE_CXX_FLAGS} ${arg}")
-endfunction(cxx_arg, arg)
+include(lib.cmake)
 
 project(regex_compiler)
-add_executable(main main.cpp)
 
+# Compile as executable
+add_executable(main src/main.cpp)
 set(CMAKE_CXX_STANDARD 20)
-if (defined DEBUG)
-    foreach(prop IN LISTS debug_prop)
-        cxx_flag(${prop})
-    endforeach()
+if (${CMAKE_BUILD_TYPE} STREQUAL Debug)
+    cxx_flag(DDEBUG, DCPUF_C_STRING_DEBUG)
 endif()
-target_include_directories(main PRIVATE "cpuf")
+target_include_directories(main PRIVATE "src/cpuf")
+set_target_properties(
+    main PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+
+# Generate assembly code
+add_custom_command(
+    TARGET main
+    POST_BUILD
+    COMMAND g++ ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp -S -O3 -I${CMAKE_CURRENT_SOURCE_DIR}/src/cpuf -o ${CMAKE_BINARY_DIR}/bin/main.s
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
