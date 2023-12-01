@@ -88,61 +88,39 @@ struct __const_str {
         return std::strlen(n) < std::strlen(&s) || std::strcmp(n, &s) == 0;
     }
 #endif
-#ifdef _GLIBCXX_ISTREAM
-    std::istream& operator>>(std::istream& stream) {
-        unsigned i = 0;
-        while (
-            std::cin.get(s[i])
-                &&
-            !isspace(s[i])
-                &&
-            i < SIZE - 1
-        ) i++;
-        s[i] = '\0';
-        return stream;
-    }
-#endif
     template <typename Stream>
     Stream& operator>>(Stream& stream) {
-        stream >> s;
+        stream >> n;
         return stream;
     }
     template <typename Stream>
     Stream& operator<<(Stream& stream) {
-        stream << s;
+        stream << n;
         return stream;
     }
-    char* operator&() {
-        return n;
-    }
-    chartype operator*() {
-        return *n;
-    }
-    chartype operator[](const int& id) {
-        return *(n + id);
-    }
+    operator char*() { return n ; }
 
     /*  strchr
         Find certain character in the string and return pointer onto it. null pointer if not found
     */
     inline const chartype *find(const unsigned &character) const
     {
-        return std::strchr(s, character);
+        return std::strchr(n, character);
     }
     /*  strstr
         Find string and return pointer onto it. null pointer if not found
     */
     inline const chartype *find(const chartype *string) const {
-        return std::strstr(s, string);
+        return std::strstr(n, string);
     }
 #ifdef CPUF_C_STRING
     template <unsigned S>
     inline const chartype *find(const std::__cstring<chartype, S> &string) const {
-        return std::strstr(s, &string);
+        return std::strstr(n, &string);
     }
 #endif
     inline const chartype *find(const __const_str<chartype> &string) const {
-        return std::strstr(s, &string);
+        return std::strstr(n, &string);
     }
     size_t size() {
         return std::strlen(n);

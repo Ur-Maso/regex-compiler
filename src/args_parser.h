@@ -49,7 +49,7 @@ namespace args {
                         else flagname += c;
                     } else {
                         // allow namespace character (::) for util parameter
-                        if (!isalnum(c) && c != '_' && !(flagname == "util" && c == ':'))
+                        if (!isalnum(c) && c != '_' && !(flagname == "util" && c == ':') && flagname != "path")
                             ferr("Parameter must contain only alphanumeric and '_' characters", argv, argc, offset + i);
                         else param += c;
                     }
@@ -76,10 +76,7 @@ namespace args {
                 if (config.name == name) { // if 1
                     wasConfig = true;
                     if (el_args.size() < config.minimum_args) { // if 2
-                        err((
-                            config.name + " expected at least " + std::to_string(config.minimum_args) + " arguments."
-                            ).c_str()
-                        );
+                        err(config.name, " expected at least ", config.minimum_args, " arguments. ");
                     } else if (config.maximum_args > 0 && el_args.size() > config.maximum_args) {
                         string m = config.name + " has got too much arguments. ";
                         if (config.minimum_args == config.maximum_args) {
@@ -90,7 +87,7 @@ namespace args {
                             m += " to ";
                             m += std::to_string(config.maximum_args);
                         }
-                        err(m.c_str());
+                        err(m);
                     } else if (config.fixed_args.size() > 0) {
                         // has fixed arguments
                         for (size_t i = 0; i < args.size(); i++) {
@@ -102,20 +99,14 @@ namespace args {
                                 }
                             }
                             if (!valid) {
-                                string m = "The argument '";
-                                m += el;
-                                m += "' is invalid.";
-                                err(m.c_str());
+                                err("The argument '", el, "' is invalid");
                             }
                         }
                     } // if 2
                 } // if 1
             } // for 2
             if (!wasConfig) {
-                string m = "Flag '";
-                m += name;
-                m += "' does not exist.";
-                err(m.c_str());
+                err("Flag '", name, "' does not exist");
             }
         } // for 1
         for (const auto& config : analyse_config) {
